@@ -77,6 +77,9 @@ statsmodels         # Statistical modeling
 - `sklearn.model_selection` - train_test_split, cross_val_score, GridSearchCV, RepeatedStratifiedKFold
 - `sklearn.linear_model.LogisticRegression` - Logistic regression classifier
 - `sklearn.ensemble.RandomForestClassifier` - Random forest classifier
+- `sklearn.neighbors.KNeighborsClassifier` - K-nearest neighbors classifier
+- `sklearn.neighbors.RadiusNeighborsClassifier` - Radius neighbors classifier
+- `sklearn.neural_network.MLPClassifier` - Multi-layer perceptron neural network
 - `sklearn.preprocessing` - MinMaxScaler, StandardScaler, RobustScaler
 - `sklearn.impute.SimpleImputer` - Missing value imputation
 - `sklearn.metrics` - classification_report, accuracy_score, confusion_matrix, ConfusionMatrixDisplay, f1_score, precision_score, recall_score, roc_auc_score, roc_curve, RocCurveDisplay, precision_recall_curve
@@ -85,7 +88,7 @@ statsmodels         # Statistical modeling
 
 ## Notebook Structure
 
-The notebook consists of **127 cells** organized into the following major sections:
+The notebook consists of **142 cells** organized into the following major sections:
 
 ### 1. Introduction and Setup
 - **Cell 0**: Colab badge link
@@ -171,7 +174,9 @@ The notebook consists of **127 cells** organized into the following major sectio
 - **Cell 119**: Logistic Regression implementation
 - **Cell 121**: Random Forest section
 - **Cell 122**: Random Forest implementation
-- **Cell 124**: Additional models placeholder
+- **Cell 124**: K-Nearest Neighbors (KNN) implementation with hyperparameter tuning
+- **Extended cells**: Radius Neighbors Classifier implementation with various radius values
+- **Extended cells**: Multi-Layer Perceptron (MLP) Neural Network implementation
 
 ### 10. Results (Cell 125-126)
 - **Cell 125**: Results comparison
@@ -344,8 +349,15 @@ The notebook consists of **127 cells** organized into the following major sectio
 ### Model Variables
 - **`model_LR`**: Logistic Regression model
   - Parameters: `multi_class='auto'`, `max_iter=1000`, `class_weight='balanced'`
-- **`model_RF`**: Random Forest Classifier
-  - Parameters: `max_depth=5`, `random_state=3003`
+- **`model_RF`**: Random Forest Classifier variations
+  - Parameters tested: `max_depth` in [4, 5, 100], `random_state=3003`
+  - Primary configuration: `max_depth=5`
+- **`model_KNN`**: K-Nearest Neighbors Classifier
+  - Parameters: `n_neighbors` varied from 1-15 for optimization
+- **`model_RNC`**: Radius Neighbors Classifier
+  - Parameters: `outlier_label='most_frequent'`, `radius` varied (0.5-10.0)
+- **`model_MLP`**: Multi-Layer Perceptron Classifier
+  - Parameters: `hidden_layer_sizes=(100, 50)`, `max_iter=1000`, `random_state=3003`
 
 ### Evaluation Variables
 - **`y_pred`**: Predicted labels
@@ -387,8 +399,10 @@ The notebook consists of **127 cells** organized into the following major sectio
 ### 5. Model Training
 1. Safety checks (no NaNs, aligned shapes)
 2. Logistic Regression with balanced class weights
-3. Random Forest with max_depth=5
-4. Additional models (placeholder for expansion)
+3. Random Forest with max_depth=5, 100 (for comparison)
+4. K-Nearest Neighbors with varying n_neighbors (1-15)
+5. Radius Neighbors Classifier with varying radius (0.5-10.0)
+6. Multi-Layer Perceptron Neural Network with hidden layers (100, 50)
 
 ### 6. Model Evaluation
 1. Accuracy score
@@ -544,15 +558,32 @@ Data-Witches_Project2/
 
 ---
 
+## Model Comparison Results
+
+The project tested multiple machine learning models with the following approaches:
+
+### Models Implemented
+1. **Logistic Regression**: Binary classifier with balanced class weights
+2. **Random Forest**: Ensemble method with varying depths (4, 5, 100)
+3. **K-Nearest Neighbors (KNN)**: Distance-based classifier with n_neighbors from 1-15
+4. **Radius Neighbors Classifier**: Distance-based classifier with varying radius thresholds
+5. **Multi-Layer Perceptron (MLP)**: Neural network with two hidden layers
+
+### Performance Observations
+- KNN models showed strong performance with F1 scores around 0.93
+- Random Forest with max_depth=5 achieved perfect recall (1.0) on the test set
+- MLP Neural Network achieved similar performance to KNN models
+- Results stored in `trainingResults.csv` for comprehensive comparison
+
 ## Future Enhancements
 
 Based on the notebook structure, potential areas for expansion:
-1. Additional machine learning models (Cell 124 placeholder)
-2. Hyperparameter tuning using GridSearchCV
-3. Cross-validation for robust performance estimation
-4. Feature importance analysis
-5. SHAP values for model interpretability
-6. Ensemble methods combining multiple models
+1. Hyperparameter tuning using GridSearchCV for optimal parameter selection
+2. Cross-validation for robust performance estimation
+3. Feature importance analysis for better interpretability
+4. SHAP values for model interpretability
+5. Ensemble methods combining multiple models
+6. Additional preprocessing techniques for improved model performance
 
 ---
 
@@ -563,4 +594,4 @@ For questions or contributions, please contact team members listed at the top of
 ---
 
 *Documentation generated for Data Witches Project 2*  
-*Last updated: 2025-11-21*
+*Last updated: 2025-11-21 (Updated to reflect 142 cells and additional ML models)*
