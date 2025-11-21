@@ -1,2 +1,10 @@
 kaggle
 plotly
+matplotlib
+numpy
+seaborn
+pandas
+colorama
+scikit-learn
+shap
+statsmodels
