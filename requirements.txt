@@ -8,3 +8,4 @@ colorama
 scikit-learn
 shap
 statsmodels
+neurokit2
