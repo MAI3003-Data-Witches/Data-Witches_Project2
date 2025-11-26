@@ -61,7 +61,7 @@ shap                # Model interpretability
 statsmodels         # Statistical modeling
 neurokit2           # ECG signal processing and HRV feature extraction
 tqdm                # Progress bars for long-running operations
-sympy               # Symbolic mathematics
+sympy               # Symbolic mathematics (dependency for other libraries)
 ```
 
 ### Specific Imports
@@ -642,16 +642,16 @@ The project tested **57 unique machine learning models** across multiple algorit
 6. **AdaBoost (n_estimators=1000)**: F1=0.8125, Accuracy=0.9595, Precision=0.8764, Recall=0.7573, ROC-AUC=0.9784
 
 ### Logistic Regression Feature Engineering Results
-- **Baseline LR (all features)**: F1=0.759, Accuracy=0.931, ROC-AUC=0.973
-  - Good baseline but poor precision (0.64)
-- **LR with Top 10 Features**: F1=0.718, Accuracy=0.918, ROC-AUC=0.943
-  - Simpler model with slightly lower performance
-- **LR with Correlation Filter (>0.8)**: F1=0.762, Accuracy=0.930, ROC-AUC=0.971
-  - Marginal improvement by removing highly correlated features
-- **LR Augmented (kept parent features)**: F1=0.797, Accuracy=0.947, ROC-AUC=0.975
-  - Best LR variant with feature augmentation
-- **LR Augmented (dropped parents)**: F1=0.759, Accuracy=0.933, ROC-AUC=0.973
-  - Feature replacement didn't improve performance
+- **Baseline LR (all features)**: Accuracy=0.9314, F1=0.7589, Precision=0.6400, Recall=0.9320, ROC-AUC=0.9732
+  - Good baseline but poor precision (0.64), high recall
+- **LR with Top 10 Features**: Accuracy=0.9179, F1=0.7181, Precision=0.5962, Recall=0.9029, ROC-AUC=0.9642
+  - Simpler model with slightly lower performance across all metrics
+- **LR with Correlation Filter (>0.8)**: Accuracy=0.9269, F1=0.7490, Precision=0.6218, Recall=0.9417, ROC-AUC=0.9333
+  - Marginal improvement in recall by removing highly correlated features
+- **LR Augmented (kept parent features)**: Accuracy=0.9370, F1=0.7724, Precision=0.6643, Recall=0.9223, ROC-AUC=0.9751
+  - Best LR variant with feature augmentation, improved precision
+- **LR Augmented (dropped parents)**: Accuracy=0.9325, F1=0.7619, Precision=0.6443, Recall=0.9320, ROC-AUC=0.9735
+  - Feature replacement didn't improve performance over baseline
 
 ### Key Observations
 - **Ensemble methods dominate**: Voting Classifier achieved the best overall performance
