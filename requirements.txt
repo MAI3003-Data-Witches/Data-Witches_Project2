@@ -11,3 +11,4 @@ statsmodels
 neurokit2
 tqdm
 sympy
+pytest
