@@ -177,25 +177,32 @@ The notebook consists of **193 cells** organized into the following major sectio
 - **Cell 115**: Model results function
 - **Cell 116**: Dataset size confirmation
 
-### 9. Machine Learning Training (Cell 117-178)
-- **Cell 117**: ML training overview
-- **Cell 118**: Logistic Regression section
-- **Cell 119**: Logistic Regression implementation
-  - Baseline Logistic Regression with all features
-  - Top 10 Features variant
-  - Correlation-based feature selection (> 0.8)
-  - Augmented features with all parent features
-  - Augmented features with dropped parent features
-- **Cell 121**: Random Forest section
-- **Cell 122-135**: Random Forest implementation with varying max_depth (1-14)
-- **Cell 136-150**: K-Nearest Neighbors (KNN) implementation with hyperparameter tuning (n_neighbors 1-15)
-- **Cell 151-158**: Radius Neighbors Classifier implementation with various radius values (0.5-10.0)
-- **Cell 159**: Nearest Centroid Classifier implementation
-- **Cell 160**: Multi-Layer Perceptron (MLP) Neural Network implementation
-- **Cell 161**: Gradient Boosting Classifier implementation
-- **Cell 162-171**: AdaBoost Classifier with varying n_estimators (50-10000)
-- **Cell 172**: Voting Classifier (ensemble of LR, RF, KNN, AdaBoost)
-- **Cell 173**: Gradient Boosting Classifier with tuned hyperparameters
+### 9. Machine Learning Training (Cells 117-178)
+Model implementations are organized by algorithm type:
+
+**Logistic Regression (Cells 118-119):**
+- Baseline Logistic Regression with all features
+- Top 10 Features variant (selected by feature importance)
+- Correlation-based feature selection (> 0.8)
+- Augmented features with all parent features
+- Augmented features with dropped parent features
+
+**Random Forest (Cells 121-135):**
+- 14 variants with varying max_depth (1-14)
+
+**K-Nearest Neighbors (Cells 136-150):**
+- 15 variants with hyperparameter tuning (n_neighbors 1-15)
+
+**Radius Neighbors (Cells 151-158):**
+- 8 variants with various radius values (0.5-10.0)
+
+**Other Classifiers (Cells 159-173):**
+- Nearest Centroid Classifier (Cell 159)
+- Multi-Layer Perceptron Neural Network (Cell 160)
+- Gradient Boosting Classifier baseline (Cell 161)
+- AdaBoost with varying n_estimators 50-10000 (Cells 162-171)
+- Voting Classifier ensemble (Cell 172)
+- Gradient Boosting with tuned hyperparameters (Cell 173)
 
 ### 10. Results (Cell 179-193)
 - **Cell 180-190**: Results comparison and visualization
@@ -628,7 +635,9 @@ The project tested **57 unique machine learning models** across multiple algorit
 8. **Multi-Layer Perceptron (1 variant)**: Neural network with two hidden layers (100, 50)
 9. **Nearest Centroid (1 variant)**: Simple centroid-based classifier
 
-**Total: 57 unique models** (Note: trainingResults.csv contains 58 records due to one duplicate GradientBoostingClassifier entry that can be safely ignored)
+**Total: 57 unique models** 
+
+Note: trainingResults.csv contains 58 records due to one duplicate GradientBoostingClassifier entry (the model was accidentally run twice). The duplicate can be ignored when analyzing results as both entries have identical configurations and performance metrics.
 
 ### Top Performing Models (by F1 Score)
 1. **Voting Classifier (Ensemble)**: F1=0.8627, Accuracy=0.9685, Precision=0.8713, Recall=0.8544, ROC-AUC=0.9847
@@ -645,12 +654,16 @@ The project tested **57 unique machine learning models** across multiple algorit
 - **Baseline LR (all features)**: Accuracy=0.9314, F1=0.7589, Precision=0.6400, Recall=0.9320, ROC-AUC=0.9732
   - Good baseline but poor precision (0.64), high recall
 - **LR with Top 10 Features**: Accuracy=0.9179, F1=0.7181, Precision=0.5962, Recall=0.9029, ROC-AUC=0.9642
+  - Features selected by importance ranking from baseline model
   - Simpler model with slightly lower performance across all metrics
 - **LR with Correlation Filter (>0.8)**: Accuracy=0.9269, F1=0.7490, Precision=0.6218, Recall=0.9417, ROC-AUC=0.9333
-  - Marginal improvement in recall by removing highly correlated features
+  - Removed highly correlated features to reduce multicollinearity
+  - Marginal improvement in recall
 - **LR Augmented (kept parent features)**: Accuracy=0.9370, F1=0.7724, Precision=0.6643, Recall=0.9223, ROC-AUC=0.9751
-  - Best LR variant with feature augmentation, improved precision
+  - Added engineered features while keeping original features
+  - Best LR variant with improved precision
 - **LR Augmented (dropped parents)**: Accuracy=0.9325, F1=0.7619, Precision=0.6443, Recall=0.9320, ROC-AUC=0.9735
+  - Replaced original features with engineered features only
   - Feature replacement didn't improve performance over baseline
 
 ### Key Observations
@@ -666,7 +679,7 @@ The project tested **57 unique machine learning models** across multiple algorit
 ## Future Enhancements
 
 Based on the notebook structure and current implementation, potential areas for expansion:
-1. ✓ **Hyperparameter tuning**: Completed through extensive manual exploration across 57 model variants (manual grid exploration performed rather than automated GridSearchCV)
+1. ✓ **Hyperparameter tuning**: Completed through systematic parameter exploration across 57 model variants (manual testing of specific parameter values rather than automated GridSearchCV)
 2. ✓ **Ensemble methods**: Implemented (Voting Classifier combining multiple models)
 3. Cross-validation for robust performance estimation (currently using single train-test split)
 4. Feature importance analysis for better interpretability
