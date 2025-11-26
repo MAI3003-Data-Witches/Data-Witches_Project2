@@ -622,11 +622,13 @@ The project tested **57 unique machine learning models** across multiple algorit
 2. **K-Nearest Neighbors (15 variants)**: Distance-based classifier with n_neighbors from 1-15
 3. **AdaBoost (10 variants)**: Boosting ensemble with n_estimators from 50-10000
 4. **Radius Neighbors Classifier (8 variants)**: Distance-based classifier with varying radius (0.5-10.0)
-5. **Logistic Regression (6 variants)**: Binary classifier with feature engineering variations
-6. **Gradient Boosting (2 variants)**: Gradient boosting with default and tuned hyperparameters
+5. **Logistic Regression (5 variants)**: Binary classifier with feature engineering variations
+6. **Gradient Boosting (2 variants)**: Gradient boosting with default and tuned hyperparameters (note: 1 duplicate in records)
 7. **Voting Classifier (1 variant)**: Soft voting ensemble combining LR, RF, KNN, and AdaBoost
 8. **Multi-Layer Perceptron (1 variant)**: Neural network with two hidden layers (100, 50)
 9. **Nearest Centroid (1 variant)**: Simple centroid-based classifier
+
+**Total: 57 unique models, 58 records** (one duplicate GradientBoostingClassifier entry in trainingResults.csv)
 
 ### Top Performing Models (by F1 Score)
 1. **Voting Classifier (Ensemble)**: F1=0.8627, Accuracy=0.9685, Precision=0.8713, Recall=0.8544, ROC-AUC=0.9847
