@@ -9,5 +9,6 @@ scikit-learn
 shap
 statsmodels
 neurokit2
+scipy
 tqdm
 sympy
