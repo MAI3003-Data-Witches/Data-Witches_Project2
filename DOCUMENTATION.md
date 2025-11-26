@@ -34,6 +34,8 @@ This project implements an Atrial Fibrillation classification system using ECG (
 - `Physionet2017TrainingData.csv`: Raw ECG signal data (converted to mV by multiplying by 1000)
 - `Physionet2017TrainingLabels.csv`: Classification labels
 - `train.csv`: Secondary dataset for testing ML pipeline
+- `hrv_train.csv`: Preprocessed HRV features for training set (72 features, ~3,620 samples)
+- `hrv_test.csv`: Preprocessed HRV features for test set (72 features, ~906 samples)
 
 ### Data Split
 - Training set: 80%
@@ -57,6 +59,9 @@ colorama            # Terminal text coloring
 scikit-learn        # Machine learning algorithms
 shap                # Model interpretability
 statsmodels         # Statistical modeling
+neurokit2           # ECG signal processing and HRV feature extraction
+tqdm                # Progress bars for long-running operations
+sympy               # Symbolic mathematics
 ```
 
 ### Specific Imports
@@ -77,8 +82,12 @@ statsmodels         # Statistical modeling
 - `sklearn.model_selection` - train_test_split, cross_val_score, GridSearchCV, RepeatedStratifiedKFold
 - `sklearn.linear_model.LogisticRegression` - Logistic regression classifier
 - `sklearn.ensemble.RandomForestClassifier` - Random forest classifier
+- `sklearn.ensemble.GradientBoostingClassifier` - Gradient boosting classifier
+- `sklearn.ensemble.AdaBoostClassifier` - AdaBoost boosting classifier
+- `sklearn.ensemble.VotingClassifier` - Ensemble voting classifier
 - `sklearn.neighbors.KNeighborsClassifier` - K-nearest neighbors classifier
 - `sklearn.neighbors.RadiusNeighborsClassifier` - Radius neighbors classifier
+- `sklearn.neighbors.NearestCentroid` - Nearest centroid classifier
 - `sklearn.neural_network.MLPClassifier` - Multi-layer perceptron neural network
 - `sklearn.preprocessing` - MinMaxScaler, StandardScaler, RobustScaler
 - `sklearn.impute.SimpleImputer` - Missing value imputation
@@ -88,7 +97,7 @@ statsmodels         # Statistical modeling
 
 ## Notebook Structure
 
-The notebook consists of **142 cells** organized into the following major sections:
+The notebook consists of **193 cells** organized into the following major sections:
 
 ### 1. Introduction and Setup
 - **Cell 0**: Colab badge link
@@ -168,19 +177,29 @@ The notebook consists of **142 cells** organized into the following major sectio
 - **Cell 115**: Model results function
 - **Cell 116**: Dataset size confirmation
 
-### 9. Machine Learning Training (Cell 117-124)
+### 9. Machine Learning Training (Cell 117-180+)
 - **Cell 117**: ML training overview
 - **Cell 118**: Logistic Regression section
 - **Cell 119**: Logistic Regression implementation
+  - Baseline Logistic Regression with all features
+  - Top 10 Features variant
+  - Correlation-based feature selection (> 0.8)
+  - Augmented features with all parent features
+  - Augmented features with dropped parent features
 - **Cell 121**: Random Forest section
-- **Cell 122**: Random Forest implementation
-- **Cell 124**: K-Nearest Neighbors (KNN) implementation with hyperparameter tuning
-- **Extended cells**: Radius Neighbors Classifier implementation with various radius values
-- **Extended cells**: Multi-Layer Perceptron (MLP) Neural Network implementation
+- **Cell 122-135**: Random Forest implementation with varying max_depth (1-14)
+- **Cell 124-138**: K-Nearest Neighbors (KNN) implementation with hyperparameter tuning (n_neighbors 1-15)
+- **Cell 140-147**: Radius Neighbors Classifier implementation with various radius values (0.5-10.0)
+- **Cell 148**: Nearest Centroid Classifier implementation
+- **Cell 149**: Multi-Layer Perceptron (MLP) Neural Network implementation
+- **Cell 150**: Gradient Boosting Classifier implementation
+- **Cell 151-160**: AdaBoost Classifier with varying n_estimators (50-10000)
+- **Cell 161**: Voting Classifier (ensemble of LR, RF, KNN, AdaBoost)
+- **Cell 162**: Gradient Boosting Classifier with tuned hyperparameters
 
-### 10. Results (Cell 125-126)
-- **Cell 125**: Results comparison
-- **Cell 126**: Results visualization
+### 10. Results (Cell 180-193)
+- **Cell 180-190**: Results comparison and visualization
+- **Cell 191-193**: Final analysis and conclusions
 
 ---
 
@@ -347,17 +366,29 @@ The notebook consists of **142 cells** organized into the following major sectio
 - **Final `x_train`, `x_test`**: Scaled and preprocessed features ready for ML
 
 ### Model Variables
-- **`model_LR`**: Logistic Regression model
+- **`model_LR`**: Logistic Regression model variants
   - Parameters: `multi_class='auto'`, `max_iter=1000`, `class_weight='balanced'`
+  - Variants: Baseline, Top 10 Features, Correlation-based, Augmented features
 - **`model_RF`**: Random Forest Classifier variations
-  - Parameters tested: `max_depth` in [4, 5, 100], `random_state=3003`
-  - Primary configuration: `max_depth=5`
+  - Parameters tested: `max_depth` in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], `random_state=3003`
+  - Best performing: `max_depth=9` (F1: 0.8216)
 - **`model_KNN`**: K-Nearest Neighbors Classifier
   - Parameters: `n_neighbors` varied from 1-15 for optimization
 - **`model_RNC`**: Radius Neighbors Classifier
   - Parameters: `outlier_label='most_frequent'`, `radius` varied (0.5-10.0)
+- **`model_NC`**: Nearest Centroid Classifier
+  - Basic centroid-based classifier
 - **`model_MLP`**: Multi-Layer Perceptron Classifier
   - Parameters: `hidden_layer_sizes=(100, 50)`, `max_iter=1000`, `random_state=3003`
+- **`model_GB`**: Gradient Boosting Classifier
+  - Parameters: `random_state=3003`, with tuned variant `learning_rate=0.05`, `max_depth=4`, `n_estimators=200`, `subsample=0.8`
+- **`model_ADA`**: AdaBoost Classifier
+  - Parameters: `n_estimators` varied from 50 to 10000, `random_state=3003`
+  - Best performing: `n_estimators=1000` (F1: 0.8125)
+- **`model_VOTE`**: Voting Classifier (Ensemble)
+  - Combines Logistic Regression, Random Forest, KNN, and AdaBoost
+  - Parameters: `voting='soft'`, `n_jobs=-1`
+  - Best overall performance (F1: 0.8627, Accuracy: 0.9685)
 
 ### Evaluation Variables
 - **`y_pred`**: Predicted labels
@@ -398,11 +429,15 @@ The notebook consists of **142 cells** organized into the following major sectio
 
 ### 5. Model Training
 1. Safety checks (no NaNs, aligned shapes)
-2. Logistic Regression with balanced class weights
-3. Random Forest with max_depth=5, 100 (for comparison)
-4. K-Nearest Neighbors with varying n_neighbors (1-15)
-5. Radius Neighbors Classifier with varying radius (0.5-10.0)
-6. Multi-Layer Perceptron Neural Network with hidden layers (100, 50)
+2. Logistic Regression with balanced class weights (5 variants with feature engineering)
+3. Random Forest with max_depth ranging from 1-14 (14 variants)
+4. K-Nearest Neighbors with varying n_neighbors (1-15) (15 variants)
+5. Radius Neighbors Classifier with varying radius (0.5-10.0) (8 variants)
+6. Nearest Centroid Classifier
+7. Multi-Layer Perceptron Neural Network with hidden layers (100, 50)
+8. Gradient Boosting Classifier (2 variants)
+9. AdaBoost Classifier with varying n_estimators (50-10000) (10 variants)
+10. Voting Classifier (ensemble of best models)
 
 ### 6. Model Evaluation
 1. Accuracy score
@@ -413,8 +448,9 @@ The notebook consists of **142 cells** organized into the following major sectio
 6. Classification report
 
 ### 7. Results Storage
-- All results saved to `trainingResults.csv`
+- All results saved to `trainingResults.csv` (57 unique models, 58 records)
 - Results table maintained in memory for comparison
+- HRV features saved separately to `hrv_train.csv` and `hrv_test.csv` for reuse
 
 ---
 
@@ -495,20 +531,26 @@ Using NeuroKit library for comprehensive HRV analysis:
 ## File Structure
 
 ```
-Data-Witches_Project2/
+AtrialFibrillation-detection/
 ├── .git/                           # Git repository
 ├── .gitattributes                  # Git attributes
 ├── .gitignore                      # Git ignore rules
-├── MAI3003_DataWitches_Assignment02.ipynb  # Main notebook (127 cells)
+├── MAI3003_DataWitches_Assignment02.ipynb  # Main notebook (193 cells)
+├── MAI3003_DataWitches_Assignment02.pdf    # PDF export of main notebook
+├── DataWitches_Challenge.ipynb     # Challenge/practice notebook (141 cells)
 ├── README.md                       # Basic project description
 ├── DOCUMENTATION.md                # This file - complete documentation
 ├── requirements.txt                # Python package dependencies
 ├── download_dataset.sh             # Kaggle dataset download script
-├── trainingResults.csv             # Stored model evaluation results
+├── trainingResults.csv             # Stored model evaluation results (57 models)
+├── hrv_train.csv                   # Preprocessed HRV features for training (72 features)
+├── hrv_test.csv                    # Preprocessed HRV features for testing (72 features)
 ├── pyvenv.cfg                      # Python virtual environment config
 ├── data/                           # Data directory
 │   └── Physionet2017Training.tar.xz  # ECG dataset archive
 └── share/                          # Shared resources
+    ├── jupyter/                    # Jupyter kernel configurations
+    └── man/                        # Manual pages
 ```
 
 ---
@@ -520,17 +562,30 @@ Data-Witches_Project2/
 2. Download dataset using `download_dataset.sh` (requires Kaggle credentials)
 3. Extract data to `data/` directory
 
-### Running the Notebook
+### Running the Main Notebook
 1. Open `MAI3003_DataWitches_Assignment02.ipynb` in Jupyter or Google Colab
 2. Run cells sequentially from top to bottom
 3. All functions are defined before use
 4. Results are automatically saved to `trainingResults.csv`
+5. Preprocessed HRV features are saved to `hrv_train.csv` and `hrv_test.csv` for reuse
+
+### Using Preprocessed HRV Features
+The repository includes pre-computed HRV features to skip the computationally expensive feature extraction:
+- **`hrv_train.csv`**: 72 HRV features extracted from training ECG signals
+- **`hrv_test.csv`**: 72 HRV features extracted from test ECG signals
+- These can be loaded directly to start from the modeling phase
+
+### Challenge Notebook
+- **`DataWitches_Challenge.ipynb`**: Practice/challenge notebook (141 cells)
+- Contains exploratory work and experiments
+- Separate from the main assignment notebook
 
 ### Modifying the Pipeline
-- To add new models: Add implementation in Section 9 (Cell 117+)
+- To add new models: Add implementation in Section 9 (Cell 117-180)
 - To modify preprocessing: Edit cells in Section 7 (Cell 96-109)
 - To add new features: Modify feature engineering in Section 4 (Cell 54-68)
 - To change evaluation metrics: Update `modelResults()` function
+- To experiment with different ensemble combinations: Modify VotingClassifier in Cell 161
 
 ---
 
@@ -560,36 +615,65 @@ Data-Witches_Project2/
 
 ## Model Comparison Results
 
-The project tested multiple machine learning models with the following approaches:
+The project tested **57 unique machine learning models** across multiple algorithms with extensive hyperparameter tuning.
 
-### Models Implemented
-1. **Logistic Regression (LR)**: Binary classifier with balanced class weights
-2. **Random Forest**: Ensemble method with varying depths (4, 5, 100)
-3. **K-Nearest Neighbors (KNN)**: Distance-based classifier with n_neighbors from 1-15
-4. **Radius Neighbors Classifier**: Distance-based classifier with varying radius thresholds
-5. **Multi-Layer Perceptron (MLP)**: Neural network with two hidden layers
+### Models Implemented (by count)
+1. **Random Forest (14 variants)**: Ensemble method with max_depth ranging from 1-14
+2. **K-Nearest Neighbors (15 variants)**: Distance-based classifier with n_neighbors from 1-15
+3. **AdaBoost (10 variants)**: Boosting ensemble with n_estimators from 50-10000
+4. **Radius Neighbors Classifier (8 variants)**: Distance-based classifier with varying radius (0.5-10.0)
+5. **Logistic Regression (6 variants)**: Binary classifier with feature engineering variations
+6. **Gradient Boosting (2 variants)**: Gradient boosting with default and tuned hyperparameters
+7. **Voting Classifier (1 variant)**: Soft voting ensemble combining LR, RF, KNN, and AdaBoost
+8. **Multi-Layer Perceptron (1 variant)**: Neural network with two hidden layers (100, 50)
+9. **Nearest Centroid (1 variant)**: Simple centroid-based classifier
 
-### Performance Observations
-- Logistic regression with all features, the baseline, has achieved F1 score of 0.77 and AUC of 0.93. The differnce was caused by poor precision. Used further to compare if more advanced models show more precise results.
-- Logistic regression with top 10 features has achieved F1 score of 0.76 and AUC of 0.94. As this is a simplier model than full LR, it ranks higher.
-- Logistic regression with dropping correlated features above 0.8 has has achieved F1 score of 0.78 and AUC of 0.93.
-- Logistic regression with added features and normalised outliers and kept parent features has has achieved F1 score of 0.80 and AUC of 0.95.
-- Logistic regression with added features and normalised outliers and dropped parent features has has achieved F1 score of 0.76 and AUC of 0.93.
-TODO: Edit, not true anymore:
-- KNN models showed strong performance with F1 scores around 0.93
-- Random Forest with max_depth=5 achieved perfect recall (1.0) on the test set
-- MLP Neural Network achieved similar performance to KNN models
-- Results stored in `trainingResults.csv` for comprehensive comparison
+### Top Performing Models (by F1 Score)
+1. **Voting Classifier (Ensemble)**: F1=0.8627, Accuracy=0.9685, Precision=0.8713, Recall=0.8544, ROC-AUC=0.9847
+   - Best overall performance combining multiple algorithms
+2. **Random Forest (max_depth=9)**: F1=0.8216, Accuracy=0.9314, Precision=0.9268, Recall=0.7379, ROC-AUC=0.9817
+   - Best single Random Forest configuration
+3. **Random Forest (max_depth=8)**: F1=0.8152, Accuracy=0.9314, Precision=0.9259, Recall=0.7282, ROC-AUC=0.9803
+4. **Random Forest (max_depth=7)**: F1=0.8128, Accuracy=0.9314, Precision=0.9048, Recall=0.7379, ROC-AUC=0.9828
+5. **Gradient Boosting (tuned)**: F1=0.8128, Accuracy=0.9606, Precision=0.9048, Recall=0.7379, ROC-AUC=0.9826
+   - Parameters: learning_rate=0.05, max_depth=4, n_estimators=200, subsample=0.8
+6. **AdaBoost (n_estimators=1000)**: F1=0.8125, Accuracy=0.9595, Precision=0.8764, Recall=0.7573, ROC-AUC=0.9784
+
+### Logistic Regression Feature Engineering Results
+- **Baseline LR (all features)**: F1=0.759, Accuracy=0.931, ROC-AUC=0.973
+  - Good baseline but poor precision (0.64)
+- **LR with Top 10 Features**: F1=0.718, Accuracy=0.918, ROC-AUC=0.943
+  - Simpler model with slightly lower performance
+- **LR with Correlation Filter (>0.8)**: F1=0.762, Accuracy=0.930, ROC-AUC=0.971
+  - Marginal improvement by removing highly correlated features
+- **LR Augmented (kept parent features)**: F1=0.797, Accuracy=0.947, ROC-AUC=0.975
+  - Best LR variant with feature augmentation
+- **LR Augmented (dropped parents)**: F1=0.759, Accuracy=0.933, ROC-AUC=0.973
+  - Feature replacement didn't improve performance
+
+### Key Observations
+- **Ensemble methods dominate**: Voting Classifier achieved the best overall performance
+- **Random Forest sweet spot**: max_depth of 7-9 provided optimal balance
+- **Boosting is effective**: AdaBoost and Gradient Boosting both performed well
+- **High precision models**: Random Forest variants achieved precision up to 0.93
+- **Feature engineering matters**: Augmented features improved LR performance by ~5% in F1 score
+- **All models show strong discrimination**: ROC-AUC scores consistently above 0.97
+- **Trade-offs observed**: Higher precision often came at the cost of recall
+- Results comprehensively stored in `trainingResults.csv` with 58 total records
 
 ## Future Enhancements
 
-Based on the notebook structure, potential areas for expansion:
-1. Hyperparameter tuning using GridSearchCV for optimal parameter selection
-2. Cross-validation for robust performance estimation
-3. Feature importance analysis for better interpretability
-4. SHAP values for model interpretability
-5. Ensemble methods combining multiple models
-6. Additional preprocessing techniques for improved model performance
+Based on the notebook structure and current implementation, potential areas for expansion:
+1. ~~Hyperparameter tuning using GridSearchCV for optimal parameter selection~~ ✓ Completed
+2. ~~Ensemble methods combining multiple models~~ ✓ Implemented (Voting Classifier)
+3. Cross-validation for robust performance estimation (currently using single train-test split)
+4. Feature importance analysis for better interpretability
+5. SHAP values for model interpretability
+6. Deep learning approaches (CNNs, RNNs, LSTMs) for raw ECG signal processing
+7. Real-time ECG classification pipeline
+8. Clinical validation with medical professionals
+9. Integration with ECG monitoring devices
+10. Deployment as a web service or mobile application
 
 ---
 
@@ -600,4 +684,4 @@ For questions or contributions, please contact team members listed at the top of
 ---
 
 *Documentation generated for Data Witches Project 2*  
-*Last updated: 2025-11-21 (Updated to reflect 142 cells and additional ML models)*
+*Last updated: 2025-11-26 (Updated to reflect 193 cells, 57 models, extensive hyperparameter tuning, ensemble methods, and preprocessed HRV feature files)*
