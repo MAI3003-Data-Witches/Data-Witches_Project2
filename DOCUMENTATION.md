@@ -177,7 +177,7 @@ The notebook consists of **193 cells** organized into the following major sectio
 - **Cell 115**: Model results function
 - **Cell 116**: Dataset size confirmation
 
-### 9. Machine Learning Training (Cell 117-180+)
+### 9. Machine Learning Training (Cell 117-178)
 - **Cell 117**: ML training overview
 - **Cell 118**: Logistic Regression section
 - **Cell 119**: Logistic Regression implementation
@@ -197,7 +197,7 @@ The notebook consists of **193 cells** organized into the following major sectio
 - **Cell 161**: Voting Classifier (ensemble of LR, RF, KNN, AdaBoost)
 - **Cell 162**: Gradient Boosting Classifier with tuned hyperparameters
 
-### 10. Results (Cell 180-193)
+### 10. Results (Cell 179-193)
 - **Cell 180-190**: Results comparison and visualization
 - **Cell 191-193**: Final analysis and conclusions
 
@@ -581,7 +581,7 @@ The repository includes pre-computed HRV features to skip the computationally ex
 - Separate from the main assignment notebook
 
 ### Modifying the Pipeline
-- To add new models: Add implementation in Section 9 (Cell 117-180)
+- To add new models: Add implementation in Section 9 (Cell 117-178)
 - To modify preprocessing: Edit cells in Section 7 (Cell 96-109)
 - To add new features: Modify feature engineering in Section 4 (Cell 54-68)
 - To change evaluation metrics: Update `modelResults()` function
