@@ -7,9 +7,9 @@ pandas
 colorama
 scikit-learn
 shap
-scipy
 statsmodels
 neurokit2
+scipy
 tqdm
 sympy
 pytest
