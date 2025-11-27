@@ -95,9 +95,9 @@ sympy               # Symbolic mathematics (dependency for other libraries)
 
 ---
 
-## Notebook Structure
+## Main Notebook Structure (MAI3003_DataWitches_Assignment02.ipynb)
 
-The notebook consists of **193 cells** organized into the following major sections:
+The main notebook consists of **193 cells** organized into the following major sections:
 
 ### 1. Introduction and Setup
 - **Cell 0**: Colab badge link
@@ -207,6 +207,111 @@ Model implementations are organized by algorithm type:
 ### 10. Results (Cell 179-193)
 - **Cell 180-190**: Results comparison and visualization
 - **Cell 191-193**: Final analysis and conclusions
+
+---
+
+## Challenge Notebook Structure (DataWitches_Challenge.ipynb)
+
+The challenge notebook consists of **141 cells** (58 markdown, 83 code cells) organized into the following sections:
+
+### 1. Introduction and Setup (Cells 0-12)
+- **Cell 0**: Project title ("Data Witches")
+- **Cell 2**: Logbook
+- **Cell 3**: Methods overview with variable and function naming conventions
+- **Cell 4**: Preface
+- **Cell 5**: Package imports
+- **Cell 7**: Options settings
+- **Cell 9**: Dataset download instructions
+
+### 2. Data Preprocessing (Cells 13-21)
+- **Cell 13**: Data preprocessing overview and ECG signal extraction
+- **Cell 16**: Dataset splitting
+- **Cell 18**: Exploratory Data Analysis and dataset characteristics
+
+### 3. Feature Extraction (Cells 22-43)
+- **Cell 22**: Feature extraction overview
+- **Cell 23**: ECG feature engineering
+- **Cell 25**: R-peaks detection
+- **Cell 27**: Time-domain features
+- **Cell 30**: Full HRV feature extraction for TRAIN set
+- **Cell 38**: Full HRV feature extraction for TEST set
+- **Cell 42**: Feature exploration
+
+### 4. Preprocessing (Cells 44-77)
+- **Cell 44**: Preprocessing overview
+- **Cell 45**: Missingness analysis
+- **Cell 48**: Outlier detection (IQR method)
+- **Cell 53**: Outliers in TEST set
+- **Cell 56**: Distribution sanity check (TRAIN vs TEST)
+- **Cell 59-62**: Outlier handling (Winsorisation)
+- **Cell 64**: Final preprocessing (building ML matrices)
+- **Cell 67**: Imputation
+- **Cell 69**: Normalisation
+- **Cell 71**: Scaling
+- **Cell 73**: Sanity checks
+- **Cell 75**: Final ML datasets (X_train, X_test, y_train, y_test)
+
+### 5. Machine Learning Training Setup (Cells 78-83)
+- **Cell 78**: ML training setup overview
+- **Cell 79**: Safety check with assertions
+- **Cell 81**: Comparison framework and model results function
+
+### 6. Machine Learning Training (Cells 84-130)
+Model implementations are organized by algorithm type:
+
+**Logistic Regression (Cells 85-100):**
+- Baseline Logistic Regression with all features
+- Feature selection variants
+- Correlation-based feature removal (>0.8)
+- Feature engineering with normalisation
+- "Use Everything" model (augmented features with parents)
+- "Drop Parents" model (augmented features only)
+
+**Random Forest (Cells 101-104):**
+- Random Forest with various configurations
+
+**Neighbors Classifiers (Cells 105-110):**
+- K-Nearest Neighbors (Cell 105-106)
+- Radius Neighbors Classifier (Cell 107-108)
+- Nearest Centroid Classifier (Cell 109-110)
+
+**Neural Network (Cells 111-115):**
+- Multi-Layer Perceptron Classifier
+
+**Ensemble Methods (Cells 116-130):**
+- Gradient Boosting Classifier (Cell 116-118)
+- AdaBoost Classifier (Cell 119-120)
+- Soft Voting Classifier (Cell 121-123): Combines LR, RF (n_estimators=300), KNN (k=7), and AdaBoost (n_estimators=1000)
+- Gradient-boosted trees variants (Cell 124-126)
+- Experimental voting classifiers (Cell 127-128)
+- **Best Voting Classifier Search (Cell 129-131)**: Automated search through all combinations of classifiers to find optimal ensemble
+
+### 7. Model Evaluation (Cells 132-140)
+- **Cell 132**: Quick conclusion section
+- **Cell 133-135**: Results table analysis, duplicate removal, top 5 models display
+- **Cell 136-138**: Graphs of numerical metrics (logarithmic and linear scale bar charts)
+- **Cell 139-140**: ROC Curves comparison for all models
+
+### Key Features of Challenge Notebook
+- **Automated Ensemble Search**: Systematically tests all 2-4 classifier combinations from a pool of 10 base classifiers
+- **Comprehensive Classifier Sweep**: Tests 15+ different classifier types including:
+  - Logistic Regression (balanced and default)
+  - Ridge Classifier
+  - Decision Tree
+  - Random Forest
+  - Extra Trees
+  - Gradient Boosting
+  - AdaBoost
+  - Histogram Gradient Boosting
+  - SVC (with probability)
+  - Gaussian Naive Bayes
+  - Bernoulli Naive Bayes
+  - K-Nearest Neighbors
+  - Linear Discriminant Analysis
+  - Quadratic Discriminant Analysis
+  - Multi-Layer Perceptron
+- **Visual Model Comparison**: ROC curves and metric bar charts for all tested models
+- **Consistent Methodology**: Uses same HRV features, preprocessing, and evaluation metrics as main notebook
 
 ---
 
@@ -544,7 +649,8 @@ AtrialFibrillation-detection/
 ├── .gitignore                      # Git ignore rules
 ├── MAI3003_DataWitches_Assignment02.ipynb  # Main notebook (193 cells)
 ├── MAI3003_DataWitches_Assignment02.pdf    # PDF export of main notebook
-├── DataWitches_Challenge.ipynb     # Challenge/practice notebook (141 cells)
+├── DataWitches_Challenge.ipynb     # Challenge notebook (141 cells) - Extended ML experiments
+├── Results_analysis.ipynb          # Utility notebook for results analysis (8 cells)
 ├── README.md                       # Basic project description
 ├── DOCUMENTATION.md                # This file - complete documentation
 ├── requirements.txt                # Python package dependencies
@@ -582,10 +688,34 @@ The repository includes pre-computed HRV features to skip the computationally ex
 - **`hrv_test.csv`**: 72 HRV features extracted from test ECG signals (905 samples)
 - These can be loaded directly to start from the modeling phase
 
-### Challenge Notebook
-- **`DataWitches_Challenge.ipynb`**: Practice/challenge notebook (141 cells)
-- Contains exploratory work and experiments
-- Separate from the main assignment notebook
+### Challenge Notebook (DataWitches_Challenge.ipynb)
+The challenge notebook (`DataWitches_Challenge.ipynb`) provides extended machine learning experiments and model comparisons:
+
+**Purpose**:
+- Comprehensive exploration of different ML algorithms for Atrial Fibrillation classification
+- Automated search for optimal ensemble voting classifiers
+- Visual comparison of model performance through ROC curves and metric bar charts
+
+**Structure (141 cells)**:
+- **58 markdown cells**: Documentation and section headers
+- **83 code cells**: Feature extraction, model training, and evaluation
+
+**Key Features**:
+1. **Soft Voting Classifier**: Ensemble combining Logistic Regression, Random Forest (300 estimators), KNN (k=7), and AdaBoost (1000 estimators)
+2. **Best Voting Classifier Search**: Automated testing of all 2-4 classifier combinations from a pool of 10 base models
+3. **Comprehensive Classifier Sweep**: Tests 15+ different classifier types including Ridge, Decision Tree, Extra Trees, SVC, Naive Bayes variants, LDA, QDA, and more
+4. **Visual Analysis**: ROC curves and metric bar charts (logarithmic and linear scales)
+
+**Usage**:
+1. Open `DataWitches_Challenge.ipynb` in Jupyter or Google Colab
+2. Run cells sequentially; HRV features will be extracted (or can be loaded from CSV)
+3. Experiment with different classifier combinations in the voting classifier search section
+4. Compare results using the visualization cells at the end
+
+### Results Analysis Notebook (Results_analysis.ipynb)
+- **`Results_analysis.ipynb`**: Utility notebook for analyzing stored model results (8 code cells)
+- Loads and analyzes `trainingResults.csv` for quick result comparisons
+- Useful for post-hoc analysis without re-running models
 
 ### Modifying the Pipeline
 - To add new models: Add implementation in Section 9 (Cell 117-178)
@@ -699,4 +829,4 @@ For questions or contributions, please contact team members listed at the top of
 ---
 
 *Documentation generated for Data Witches Project 2*  
-*Last updated: 2025-11-26 (Updated to reflect 193 cells, 57 models, extensive hyperparameter tuning, ensemble methods, and preprocessed HRV feature files)*
+*Last updated: 2025-11-27 (Updated with detailed DataWitches_Challenge.ipynb documentation, including notebook structure, automated ensemble search, comprehensive classifier sweep, and visual model comparison features)*
